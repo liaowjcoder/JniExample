@@ -1,19 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="example.com.jniexample.MainActivity">
 
-    <TextView
-        android:id="@+id/sample_text"
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/hello_ffmpeg"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:onClick="hello_ffmpeg"
+        android:text="Hello World FFMpeg" />
 
-</android.support.constraint.ConstraintLayout>
+    <Button
+        android:id="@+id/hello_jin_thread"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="hello_jni_thread"
+        android:text="C++ thread" />
+
+    <Button
+        android:id="@+id/callJavaMethodOnCppMainThread"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="callJavaMethodOnCppMainThread"
+        android:text="在 C++ 主线程调用 Java方法" />
+    <Button
+        android:id="@+id/callJavaMethodOnCppChildThread"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="callJavaMethodOnCppChildThread"
+        android:text="在 C++ 子线程调用 Java方法" />
+
+    <Button
+        android:id="@+id/mutex"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="mutex"
+        android:text="生产者与消费者" />
+    <Button
+        android:id="@+id/stopMutex"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="stopMutex"
+        android:text="停止生产者与消费者" />
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:onClick="audio_prepare"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="准备"
+            android:layout_height="wrap_content" />
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:onClick="audio_start"
+            android:text="开始"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+</LinearLayout>

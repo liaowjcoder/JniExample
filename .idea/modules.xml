@@ -4,7 +4,10 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/JniExample.iml" filepath="$PROJECT_DIR$/JniExample.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/audioplayer/audioplayer.iml" filepath="$PROJECT_DIR$/audioplayer/audioplayer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jni-thread/jni-thread.iml" filepath="$PROJECT_DIR$/jni-thread/jni-thread.iml" />
       <module fileurl="file://$PROJECT_DIR$/library/library.iml" filepath="$PROJECT_DIR$/library/library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jni-thread/library-thread.iml" filepath="$PROJECT_DIR$/jni-thread/library-thread.iml" />
     </modules>
   </component>
 </project>

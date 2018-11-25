@@ -24,9 +24,23 @@ public class JniThreadDemo {
         Log.i(TAG, "JNI 回调 Java层 onSuccess 方法:" + msg);
     }
 
-    public Animal search(int age,String name){return null;}
+    //练习 函数签名
+    public Animal search(int age, String name) {
+        return null;
+    }
 
-    public boolean compare(Animal animal1,Animal animal2){return false;}
+    public boolean compare(Animal animal1, Animal animal2) {
+        return false;
+    }
 
-    public boolean compare(int arr[],Animal[] animals){return false;}
+    public boolean compare(int arr[], Animal[] animals) {
+        return false;
+    }
+
+    //c++模拟生产者消费者
+    public native void mutex();
+
+    public native void stopMutex();
+
+
 }

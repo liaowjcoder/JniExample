@@ -15,7 +15,6 @@ public class JniDemo {
         System.loadLibrary("postproc-54");
         System.loadLibrary("avfilter-6");
         System.loadLibrary("avdevice-57");
-
     }
 
 

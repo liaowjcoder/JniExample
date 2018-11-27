@@ -1,1 +1,2 @@
-include ':app', ':library', ':jni-thread', ':audioplayer'
+include ':app', ':library', ':jni-thread', ':audioplayer',
+        ':open_sl_es_player'

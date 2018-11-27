@@ -12,6 +12,7 @@
             <option value="$PROJECT_DIR$/audioplayer" />
             <option value="$PROJECT_DIR$/jni-thread" />
             <option value="$PROJECT_DIR$/library" />
+            <option value="$PROJECT_DIR$/open_sl_es_player" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

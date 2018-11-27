@@ -4,11 +4,11 @@ cmake_minimum_required(VERSION 3.4.1)
 include_directories(src/main/cpp/includes)
 
 add_library( # Sets the name of the library.
-             native-lib
+             audio-lib
 
              SHARED
 
-             src/main/cpp/native-lib.cpp
+             src/main/cpp/audio-lib.cpp
               src/main/cpp/AudioInfo.cpp
               src/main/cpp/CallJava.cpp
               src/main/cpp/FFmpeg.cpp)
@@ -60,7 +60,7 @@ set_target_properties( swscale-4
 
 
 target_link_libraries( # Specifies the target library.
-                       native-lib
+                       audio-lib
 
                        avcodec-57
                        avdevice-57

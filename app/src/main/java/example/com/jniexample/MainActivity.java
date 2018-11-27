@@ -9,6 +9,8 @@ import com.example.audioplayer.player.AudioPlayer;
 import com.example.audioplayer.player.OnPlayPreparedListener;
 import com.example.lib.JniThreadDemo;
 
+import example.com.play.PCMPlayer;
+
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -71,8 +73,9 @@ public class MainActivity extends AppCompatActivity {
         mAudioPlayer.prepare();
     }
 
-    public void audio_start(View view) {
-
+    public void OpenSLES_PCM_PLAYER(View view) {
+        PCMPlayer player = new PCMPlayer();
+        player.play();
     }
 }
 

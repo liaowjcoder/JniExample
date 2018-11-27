@@ -9,7 +9,7 @@ import android.util.Log;
 
 public class AudioPlayer {
     static {
-        System.loadLibrary("native-lib");
+        System.loadLibrary("audio-lib");
         System.loadLibrary("swresample-2");
         System.loadLibrary("avcodec-57");
         System.loadLibrary("avformat-57");

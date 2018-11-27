@@ -7,7 +7,7 @@ package com.example.lib;
 public class JniDemo {
 
     static {
-        System.loadLibrary("native-lib");
+        System.loadLibrary("ffmpeg_test_native");
         System.loadLibrary("swresample-2");
         System.loadLibrary("avcodec-57");
         System.loadLibrary("avformat-57");

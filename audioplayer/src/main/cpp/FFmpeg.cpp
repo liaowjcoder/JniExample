@@ -107,14 +107,17 @@ void FFmpeg::start() {
                 LOGD("当前解码第%d帧", count);
                 av_packet_free(&avPacket);
                 av_free(avPacket);
+                avPacket = NULL;
             } else {
                 av_packet_free(&avPacket);
                 av_free(avPacket);
+                avPacket = NULL;
             }
         } else {
             LOGD("解码完成，总共解码%d帧", count);
             av_packet_free(&avPacket);
             av_free(avPacket);
+            avPacket = NULL;
             break;
         }
     }

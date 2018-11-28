@@ -10,9 +10,12 @@
 #include "CallJava.h"
 #include "AndroidLog.h"
 #include "AudioInfo.h"
+
 extern "C" {
 #include <libavformat/avformat.h>
 }
+
+#include "PlayStatus.h"
 
 class FFmpeg {
 
@@ -23,9 +26,10 @@ public:
     const char *url = NULL;
     AVFormatContext *avFormatContext = NULL;
     AudioInfo *audioInfo = NULL;
+    PlayStatus *playStatus = NULL;
 
 public:
-    FFmpeg(CallJava *callJava, const char *url);
+    FFmpeg(PlayStatus *playStatus, CallJava *callJava, const char *url);
 
     ~FFmpeg();
 
@@ -35,7 +39,6 @@ public:
 
     void start();
 };
-
 
 
 #endif //JNIEXAMPLE_FFMPEG_H

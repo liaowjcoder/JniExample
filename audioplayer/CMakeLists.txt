@@ -8,10 +8,12 @@ add_library( # Sets the name of the library.
 
              SHARED
 
-             src/main/cpp/audio-lib.cpp
+              src/main/cpp/audio-lib.cpp
               src/main/cpp/AudioInfo.cpp
               src/main/cpp/CallJava.cpp
-              src/main/cpp/FFmpeg.cpp)
+              src/main/cpp/FFmpeg.cpp
+              src/main/cpp/PacketQueue.cpp
+              src/main/cpp/PlayStatus.cpp)
 
 add_library( avcodec-57 SHARED IMPORTED)
 set_target_properties( avcodec-57

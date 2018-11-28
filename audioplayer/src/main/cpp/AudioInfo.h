@@ -9,6 +9,9 @@ extern "C" {
 #include "libavcodec/avcodec.h"
 };
 
+#include "PacketQueue.h"
+#include "PlayStatus.h"
+
 class AudioInfo {
 public:
     //流ID值
@@ -18,8 +21,11 @@ public:
     //解码器相关参数信息
     AVCodecParameters *avCodecParameters = NULL;
 
+    PacketQueue *packetQueue = NULL;
+
+
 public:
-    AudioInfo();
+    AudioInfo(PlayStatus *playStatus);
 
     ~AudioInfo();
 };

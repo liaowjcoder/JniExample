@@ -10,7 +10,7 @@
 JavaVM *jvm = NULL;
 FFmpeg *ffmpeg = NULL;
 CallJava *callJava = NULL;
-
+PlayStatus *playStatus = NULL;
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_audioplayer_player_AudioPlayer__1prepare(JNIEnv *env, jobject instance,
@@ -21,7 +21,8 @@ Java_com_example_audioplayer_player_AudioPlayer__1prepare(JNIEnv *env, jobject i
         if (callJava == NULL) {
             callJava = new CallJava(env, jvm, &instance);
         }
-        ffmpeg = new FFmpeg(callJava, source);
+        playStatus = new PlayStatus();
+        ffmpeg = new FFmpeg(playStatus, callJava, source);
         ffmpeg->prepare();
     }
 }

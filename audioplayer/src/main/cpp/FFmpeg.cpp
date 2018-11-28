@@ -5,9 +5,14 @@
 
 #include "FFmpeg.h"
 
-FFmpeg::FFmpeg(CallJava *callJava, const char *url) {
+FFmpeg::FFmpeg(PlayStatus *playStatus, CallJava *callJava, const char *url) {
+    this->playStatus = playStatus;
     this->callJava = callJava;
     this->url = url;
+}
+
+FFmpeg::~FFmpeg() {
+
 }
 
 void *callbackDecode(void *data) {
@@ -21,6 +26,7 @@ void *callbackDecode(void *data) {
 void FFmpeg::prepare() {
     pthread_create(&decodeThread, NULL, callbackDecode, this);
 }
+
 
 /**
  * 在子线程中调用
@@ -53,7 +59,7 @@ void FFmpeg::decodeFFmpegThread() {
         if (avFormatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             if (audioInfo == NULL) {
                 //创建 AudioInfo 保存音频相关信息
-                audioInfo = new AudioInfo();
+                audioInfo = new AudioInfo(playStatus);
                 audioInfo->streamIndex = i;
                 audioInfo->avCodecParameters = avFormatContext->streams[i]->codecpar;
                 break;
@@ -104,10 +110,11 @@ void FFmpeg::start() {
 
             if (avPacket->stream_index == audioInfo->streamIndex) {
                 count++;
-                LOGD("当前解码第%d帧", count);
-                av_packet_free(&avPacket);
-                av_free(avPacket);
-                avPacket = NULL;
+//                LOGD("当前解码第%d帧", count);
+//                av_packet_free(&avPacket);
+//                av_free(avPacket);
+//                avPacket = NULL;
+                audioInfo->packetQueue->putAvPacket(avPacket);
             } else {
                 av_packet_free(&avPacket);
                 av_free(avPacket);
@@ -121,4 +128,16 @@ void FFmpeg::start() {
             break;
         }
     }
+
+    while (audioInfo->packetQueue->getAvPacketQueueSize() > 0) {
+        AVPacket *avPacket = av_packet_alloc();
+
+        audioInfo->packetQueue->getAvPacket(avPacket);
+
+        av_packet_free(&avPacket);
+        av_free(avPacket);
+        avPacket = NULL;
+    }
+    LOGD("ookokookokokoko")
 }
+

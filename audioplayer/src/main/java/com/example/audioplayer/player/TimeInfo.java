@@ -1,0 +1,16 @@
+package com.example.audioplayer.player;
+
+/**
+ * Created by zeal on 2018/12/6.
+ */
+
+public class TimeInfo {
+
+    public int currentTime;
+    public int duration;
+
+    public TimeInfo(int currentTime, int duration) {
+        this.currentTime = currentTime;
+        this.duration = duration;
+    }
+}

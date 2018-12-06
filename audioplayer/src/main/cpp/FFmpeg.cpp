@@ -59,9 +59,15 @@ void FFmpeg::decodeFFmpegThread() {
         if (avFormatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             if (audioInfo == NULL) {
                 //创建 AudioInfo 保存音频相关信息
-                audioInfo = new AudioInfo(playStatus);
+                audioInfo = new AudioInfo(callJava,
+                                          avFormatContext->streams[i]->codecpar->sample_rate,
+                                          playStatus);
                 audioInfo->streamIndex = i;
                 audioInfo->avCodecParameters = avFormatContext->streams[i]->codecpar;
+                //时间基
+                audioInfo->time_base = avFormatContext->streams[i]->time_base;
+                //总时长
+                audioInfo->duration = avFormatContext->duration / AV_TIME_BASE;
                 break;
             }
         }
@@ -101,12 +107,13 @@ void FFmpeg::start() {
         return;
     }
 
-    //开始重采样银屏数据
+    //播放音频线程
+    //开始重采样音频数据
     //一开始getAvPacket没有数据时线程会等待。
     audioInfo->play();
 
     int count = 0;
-
+    //解码
     while (playStatus != NULL && !playStatus->isExit) {
         AVPacket *avPacket = av_packet_alloc();
 
@@ -144,5 +151,17 @@ void FFmpeg::start() {
 //        avPacket = NULL;
 //    }
 //    LOGD("ookokookokokoko")
+}
+
+void FFmpeg::pause() {
+    if (audioInfo != NULL) {
+        audioInfo->pause();
+    }
+}
+
+void FFmpeg::resume() {
+    if (audioInfo != NULL) {
+        audioInfo->resume();
+    }
 }
 

@@ -5,10 +5,12 @@
 
 #include "AudioInfo.h"
 
-AudioInfo::AudioInfo(PlayStatus *playStatus) {
+AudioInfo::AudioInfo(CallJava *callJava, int sampleRate, PlayStatus *playStatus) {
+    this->sampleRate = sampleRate;
+    this->callJava = callJava;
     this->playStatus = playStatus;
     this->packetQueue = new PacketQueue(playStatus);
-    this->resampleBuffer = (u_int8_t *) av_malloc(44100 * 2 * 2);
+    this->resampleBuffer = (u_int8_t *) av_malloc(sampleRate * 2 * 2);
 }
 
 AudioInfo::~AudioInfo() {
@@ -138,6 +140,16 @@ int AudioInfo::resample() {
         int out_channels = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
         dataSize = nb * out_channels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
         LOGE("得到重采样的数据大小：%d", dataSize);
+
+        //当前展示时间*时间基=当前的秒数
+        current_time = avFrame->pts * av_q2d(time_base);
+        LOGE("current_time:%f", current_time)
+        if (current_time < clock) {
+            current_time = clock;
+        }
+
+        clock = current_time;
+
         //得到PCM数据,保存当文件中
         //fwrite(resampleBuffer, 1, dataSize, savePcmFile);
         av_packet_free(&avPacket);
@@ -156,6 +168,11 @@ int AudioInfo::resample() {
     return dataSize;
 }
 
+/**
+ * 播放回调
+ * @param caller
+ * @param pContext
+ */
 void callback(SLAndroidSimpleBufferQueueItf caller, void *pContext) {
     LOGD("callback...");
 
@@ -167,6 +184,17 @@ void callback(SLAndroidSimpleBufferQueueItf caller, void *pContext) {
         LOGD("callback dataSize:%d", dataSize);
 
         if (dataSize > 0) {
+            //计算重采样 dataSize 这么多数据需要多少s，audioInfo->sampleRate*2*2表示1s的数据量
+            audioInfo->clock += dataSize / ((double) audioInfo->sampleRate * 2 * 2);
+            LOGD("clock:%f,duration:%d", audioInfo->clock, audioInfo->duration);
+            if (audioInfo->clock - audioInfo->last_time > 0.1) {
+                //避免重复调用，只有两个当前 clock 时间与 last_time 相隔1s才需要回调给上层
+
+                audioInfo->last_time = audioInfo->clock;
+
+                audioInfo->callJava->onCallTimeInfo(CHILD_THREAD, audioInfo->clock,
+                                                    audioInfo->duration);
+            }
             (*audioInfo->bufferQueueItf)->Enqueue(audioInfo->bufferQueueItf,
                                                   (char *) audioInfo->resampleBuffer, dataSize);
         }
@@ -268,7 +296,7 @@ void AudioInfo::initOpenSLES() {
     SLDataFormat_PCM pcm = {
             SL_DATAFORMAT_PCM,//SLuint32 		formatType;//播放pcm格式的数据
             2,//SLuint32 		numChannels; //2个声道（立体声）
-            SL_SAMPLINGRATE_44_1,//SLuint32 		samplesPerSec;
+            getCurrentSampleRateForOpensles(sampleRate),//SLuint32 		samplesPerSec;
             SL_PCMSAMPLEFORMAT_FIXED_16,//SLuint32 		bitsPerSample;
             SL_PCMSAMPLEFORMAT_FIXED_16,//SLuint32 		containerSize;
             SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT,//SLuint32 		channelMask;
@@ -313,10 +341,75 @@ void AudioInfo::initOpenSLES() {
     //设置为播放状态
     (*playItf)->SetPlayState(playItf, SL_PLAYSTATE_PLAYING);
 
-    LOGD("initOpenSLES end")
-
-
     //启动队列
     //(*bufferQueueItf)->Enqueue(bufferQueueItf, "", 1);
     callback(bufferQueueItf, this);
+
+    LOGD("initOpenSLES end")
+}
+
+/**
+ * 暂停播放
+ */
+void AudioInfo::pause() {
+    if (playItf != NULL) {
+        (*playItf)->SetPlayState(playItf, SL_PLAYSTATE_PAUSED);
+    }
+}
+
+/**
+ * 恢复播放
+ */
+void AudioInfo::resume() {
+    if (playItf != NULL) {
+        (*playItf)->SetPlayState(playItf, SL_PLAYSTATE_PLAYING);
+    }
+}
+
+int AudioInfo::getCurrentSampleRateForOpensles(int sample_rate) {
+    int rate = 0;
+    switch (sample_rate) {
+        case 8000:
+            rate = SL_SAMPLINGRATE_8;
+            break;
+        case 11025:
+            rate = SL_SAMPLINGRATE_11_025;
+            break;
+        case 12000:
+            rate = SL_SAMPLINGRATE_12;
+            break;
+        case 16000:
+            rate = SL_SAMPLINGRATE_16;
+            break;
+        case 22050:
+            rate = SL_SAMPLINGRATE_22_05;
+            break;
+        case 24000:
+            rate = SL_SAMPLINGRATE_24;
+            break;
+        case 32000:
+            rate = SL_SAMPLINGRATE_32;
+            break;
+        case 44100:
+            rate = SL_SAMPLINGRATE_44_1;
+            break;
+        case 48000:
+            rate = SL_SAMPLINGRATE_48;
+            break;
+        case 64000:
+            rate = SL_SAMPLINGRATE_64;
+            break;
+        case 88200:
+            rate = SL_SAMPLINGRATE_88_2;
+            break;
+        case 96000:
+            rate = SL_SAMPLINGRATE_96;
+            break;
+        case 192000:
+            rate = SL_SAMPLINGRATE_192;
+            break;
+        default:
+            rate = SL_SAMPLINGRATE_44_1;
+    }
+    return rate;
 }

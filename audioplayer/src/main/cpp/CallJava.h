@@ -18,6 +18,7 @@ public:
     JavaVM *javaVM;
     jobject jobj;
     jmethodID m_prepare_id;
+    jmethodID  m_call_time_info;
 
 public:
     CallJava(JNIEnv *jniEnv, JavaVM *javaVM, jobject* jobj);
@@ -26,6 +27,8 @@ public:
     ~CallJava();
 
     void onCallPrepared(int type);
+
+    void onCallTimeInfo(int type,int currentTime,int duration);
 
 };
 

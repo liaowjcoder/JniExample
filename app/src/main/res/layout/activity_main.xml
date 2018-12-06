@@ -50,12 +50,39 @@
         android:text="停止生产者与消费者" />
 
 
-    <Button
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="audio_prepare"
-        android:text="准备" />
+        android:orientation="horizontal">
 
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="audio_prepare"
+            android:text="准备" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="audio_pause"
+            android:text="暂停" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="audio_resume"
+            android:text="恢复播放" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_time_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="00:00" />
 
     <Button
         android:layout_width="match_parent"

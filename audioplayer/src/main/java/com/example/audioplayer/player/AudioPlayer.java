@@ -21,6 +21,8 @@ public class AudioPlayer {
 
     private static final String TAG = AudioPlayer.class.getSimpleName();
     private OnPlayPreparedListener mOnPlayPreparedListener = null;
+    private OnPlayLoadListener mOnPlayLoadListener = null;
+    private OnPlayTimeInfoListener mOnPlayTimeInfoListener = null;
     private String source = null;
 
     public AudioPlayer() {
@@ -41,7 +43,8 @@ public class AudioPlayer {
             Log.e(TAG, "resource can't be null");
             return;
         }
-
+        //准备阶段--回调加载中
+        onCallOnLoad(true);
         new Thread() {
             @Override
             public void run() {
@@ -65,14 +68,54 @@ public class AudioPlayer {
         }).start();
     }
 
+    public void pause() {
+        _pause();
+        if (mOnPlayLoadListener != null) {
+            mOnPlayLoadListener.onLoad(true);
+        }
+    }
+
+    public void onResume() {
+        _resume();
+
+        if (mOnPlayLoadListener != null) {
+            mOnPlayLoadListener.onLoad(false);
+        }
+    }
+
     public void setOnPlayPreparedListener(OnPlayPreparedListener onPlayPreparedListener) {
         this.mOnPlayPreparedListener = onPlayPreparedListener;
     }
+
+
+    public void setOnPlayLoadListener(OnPlayLoadListener onPlayLoadListener) {
+        this.mOnPlayLoadListener = onPlayLoadListener;
+    }
+
+    public void setOnPlayTimeInfoListener(OnPlayTimeInfoListener onPlayTimeInfoListener) {
+        this.mOnPlayTimeInfoListener = onPlayTimeInfoListener;
+    }
+
 
     public void onCallPrepared() {
         //c++层回调java层，表示 ffmpeg已经准备完毕，可以是播放了
         if (mOnPlayPreparedListener != null) {
             mOnPlayPreparedListener.onPrepared();
+        }
+    }
+
+    public void onCallOnLoad(boolean onLoad) {
+        if (mOnPlayLoadListener != null) {
+            mOnPlayLoadListener.onLoad(onLoad);
+        }
+    }
+
+    public void onCallTimeInfo(int currentTime, int duaration) {
+
+        TimeInfo timeInfo = new TimeInfo(currentTime, duaration);
+
+        if (mOnPlayTimeInfoListener != null) {
+            mOnPlayTimeInfoListener.onPlayTimeInfo(timeInfo);
         }
     }
 
@@ -84,5 +127,9 @@ public class AudioPlayer {
     private native void _prepare(String source);
 
     private native void _start();
+
+    private native void _pause();
+
+    private native void _resume();
 }
 

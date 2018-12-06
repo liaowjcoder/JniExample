@@ -15,6 +15,7 @@ extern "C" {
 
 #include "PacketQueue.h"
 #include "PlayStatus.h"
+#include "CallJava.h"
 
 class AudioInfo {
 public:
@@ -49,8 +50,19 @@ public:
     SLPlayItf playItf = NULL;
     SLAndroidSimpleBufferQueueItf bufferQueueItf = NULL;
 
+    CallJava *callJava = NULL;
+
+
+    int sampleRate;
+    //歌曲时间相关
+    int duration = 0;
+    AVRational time_base;
+    double clock = 0;
+    double current_time = 0;//当前时间
+    double last_time = 0;//上一次的时间
+
 public:
-    AudioInfo(PlayStatus *playStatus);
+    AudioInfo(CallJava *callJava,int sampleRate, PlayStatus *playStatus);
 
     ~AudioInfo();
 
@@ -59,6 +71,12 @@ public:
     int resample();
 
     void initOpenSLES();
+
+    void pause();
+
+    void resume();
+
+    int getCurrentSampleRateForOpensles(int sample_rate);
 };
 
 

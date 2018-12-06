@@ -72,7 +72,5 @@ target_link_libraries( # Specifies the target library.
                        postproc-54
                        swresample-2
                        swscale-4
-
-                       # Links the target library to the log library
-                       # included in the NDK.
+                        OpenSLES
                       log )

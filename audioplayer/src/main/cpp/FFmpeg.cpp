@@ -101,9 +101,13 @@ void FFmpeg::start() {
         return;
     }
 
+    //开始重采样银屏数据
+    //一开始getAvPacket没有数据时线程会等待。
+    audioInfo->play();
+
     int count = 0;
 
-    while (1) {
+    while (playStatus != NULL && !playStatus->isExit) {
         AVPacket *avPacket = av_packet_alloc();
 
         if (av_read_frame(avFormatContext, avPacket) == 0) {
@@ -129,15 +133,16 @@ void FFmpeg::start() {
         }
     }
 
-    while (audioInfo->packetQueue->getAvPacketQueueSize() > 0) {
-        AVPacket *avPacket = av_packet_alloc();
-
-        audioInfo->packetQueue->getAvPacket(avPacket);
-
-        av_packet_free(&avPacket);
-        av_free(avPacket);
-        avPacket = NULL;
-    }
-    LOGD("ookokookokokoko")
+    //测试代码
+//    while (audioInfo->packetQueue->getAvPacketQueueSize() > 0) {
+//        AVPacket *avPacket = av_packet_alloc();
+//
+//        audioInfo->packetQueue->getAvPacket(avPacket);
+//
+//        av_packet_free(&avPacket);
+//        av_free(avPacket);
+//        avPacket = NULL;
+//    }
+//    LOGD("ookokookokokoko")
 }
 

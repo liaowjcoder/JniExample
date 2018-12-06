@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void audio_prepare(View view) {
+//        mAudioPlayer.setSource("/mnt/sdcard/diy.mp4");
         mAudioPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
         mAudioPlayer.prepare();
     }

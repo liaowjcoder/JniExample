@@ -9,7 +9,7 @@
 #include "queue"
 #include "AndroidLog.h"
 #include "PlayStatus.h"
-
+#include "unistd.h"
 extern "C" {
 #include "libavcodec/avcodec.h"
 };

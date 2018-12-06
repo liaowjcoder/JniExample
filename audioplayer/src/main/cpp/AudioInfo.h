@@ -7,6 +7,10 @@
 
 extern "C" {
 #include "libavcodec/avcodec.h"
+#include <libswresample/swresample.h>
+//opensles
+#include <SLES/OpenSLES.h>
+#include <SLES/OpenSLES_Android.h>
 };
 
 #include "PacketQueue.h"
@@ -21,13 +25,40 @@ public:
     //解码器相关参数信息
     AVCodecParameters *avCodecParameters = NULL;
 
+    //存放解码获取的AvPacket
     PacketQueue *packetQueue = NULL;
 
+    //播放状态
+    PlayStatus *playStatus = NULL;
+    //播放线程
+    pthread_t pthreadPlay;
+    //当前解码的 AvPacket
+    AVPacket *avPacket = NULL;
+    //当前解码出来的AvFrame
+    AVFrame *avFrame = NULL;
+    //重采样的缓冲区
+    u_int8_t *resampleBuffer = NULL;
+    //当前重采样的大小
+    int dataSize = 0;
+    //返回值
+    int ret = -1;
+
+    //opensles
+    SLEngineItf engineItf;
+    SLObjectItf playerObj = NULL;
+    SLPlayItf playItf = NULL;
+    SLAndroidSimpleBufferQueueItf bufferQueueItf = NULL;
 
 public:
     AudioInfo(PlayStatus *playStatus);
 
     ~AudioInfo();
+
+    void play();
+
+    int resample();
+
+    void initOpenSLES();
 };
 
 

@@ -46,7 +46,8 @@ void callback(SLAndroidSimpleBufferQueueItf caller, void *pContext) {
     }
 
     if (!fp) {
-        fp = fopen("/sdcard/test.pcm", "rb");
+        fp = fopen("/mnt/sdcard/loveshow_pcm.pcm", "rb");
+//        fp = fopen("/mnt/sdcard/mydream.pcm", "rb");
     }
 
     if (!fp) {
@@ -56,7 +57,7 @@ void callback(SLAndroidSimpleBufferQueueItf caller, void *pContext) {
 
     if ((feof(fp)) == 0) {
         int len = fread(buffer, 1, 1024, fp);
-
+        LOGD("READ LEN = %d", len)
         if (len > 0) {
             (*caller)->Enqueue(caller, buffer, len);
         } else {

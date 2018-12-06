@@ -16,7 +16,7 @@ JNIEXPORT void JNICALL
 Java_com_example_audioplayer_player_AudioPlayer__1prepare(JNIEnv *env, jobject instance,
                                                           jstring source_) {
     const char *source = env->GetStringUTFChars(source_, 0);
-
+    LOGD("source:%s",source)
     if (ffmpeg == NULL) {
         if (callJava == NULL) {
             callJava = new CallJava(env, jvm, &instance);

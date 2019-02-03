@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.audioplayer.player.AudioPlayer;
+import com.example.audioplayer.player.OnPlayErrorListener;
 import com.example.audioplayer.player.OnPlayLoadListener;
 import com.example.audioplayer.player.OnPlayPreparedListener;
 import com.example.audioplayer.player.OnPlayResumeAndPauseListener;
@@ -98,6 +99,13 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        mAudioPlayer.setOnPlayErrorListener(new OnPlayErrorListener() {
+            @Override
+            public void onError(int errCode, String errMsg) {
+                Log.e(TAG, "errCode = " + errCode + ",errMsg = " + errMsg);
+            }
+        });
     }
 
     public void hello_ffmpeg(View view) {
@@ -140,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void audio_prepare(View view) {
 //        mAudioPlayer.setSource("/storage/emulated/0/houlai.mp3");
-        mAudioPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
+        mAudioPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/11.mp3");
         mAudioPlayer.prepare();
     }
 

@@ -33,6 +33,7 @@ public:
     //是否退出
     bool exit;
 
+
     pthread_mutex_t mutex_init;
 
 public:

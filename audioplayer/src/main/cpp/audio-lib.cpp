@@ -11,6 +11,8 @@ JavaVM *jvm = NULL;
 FFmpeg *ffmpeg = NULL;
 CallJava *callJava = NULL;
 PlayStatus *playStatus = NULL;
+//native 退出
+bool nexit = true;
 
 extern "C"
 JNIEXPORT void JNICALL
@@ -23,6 +25,7 @@ Java_com_example_audioplayer_player_AudioPlayer__1prepare(JNIEnv *env, jobject i
             callJava = new CallJava(env, jvm, &instance);
         }
         playStatus = new PlayStatus();
+        callJava->onCallOnLoad(MAIN_THREAD, true);
         ffmpeg = new FFmpeg(playStatus, callJava, source);
         ffmpeg->prepare();
     }
@@ -60,6 +63,12 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_audioplayer_player_AudioPlayer__1stop(JNIEnv *env, jobject instance) {
 
+    if (!nexit) {
+        return;
+    }
+
+    nexit = false;
+
     if (ffmpeg != NULL) {
         ffmpeg->release();
         delete (ffmpeg);
@@ -76,7 +85,7 @@ Java_com_example_audioplayer_player_AudioPlayer__1stop(JNIEnv *env, jobject inst
         }
     }
 
-
+    nexit = true;
 }
 
 //在加载动态库时回去调用 JNI_Onload 方法，在这里可以得到 JavaVM 实例对象

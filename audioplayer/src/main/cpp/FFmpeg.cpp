@@ -47,7 +47,6 @@ int interrupt_callback(void *ctx) {
 void FFmpeg::decodeFFmpegThread() {
     LOGD("decodeFFmpegThread")
     pthread_mutex_lock(&mutex_init);
-    LOGD("decodeFFmpegThread2")
     //注册
     av_register_all();
     avformat_network_init();
@@ -63,6 +62,7 @@ void FFmpeg::decodeFFmpegThread() {
     if (int ret = avformat_open_input(&avFormatContext, url, NULL, NULL) != 0) {
         LOGE("avformat_open_input failed...%s %s", av_err2str(ret), url);
         exit = true;
+        callJava->onCallError(CHILD_THREAD, 1000, "avformat_open_input failed");
         pthread_mutex_unlock(&mutex_init);
         return;
     }
@@ -72,6 +72,7 @@ void FFmpeg::decodeFFmpegThread() {
     if (avformat_find_stream_info(avFormatContext, NULL) < 0) {
         LOGE("avformat_find_stream_info failed...");
         exit = true;
+        callJava->onCallError(CHILD_THREAD, 1001, "avformat_find_stream_info failed...");
         pthread_mutex_unlock(&mutex_init);
         return;
     }
@@ -101,6 +102,7 @@ void FFmpeg::decodeFFmpegThread() {
     const AVCodec *avCodec = avcodec_find_decoder(audioInfo->avCodecParameters->codec_id);
     if (!avCodec) {
         LOGE("avcodec_find_decoder failed...");
+        callJava->onCallError(CHILD_THREAD, 1002, "avcodec_find_decoder failed...");
         exit = true;
         pthread_mutex_unlock(&mutex_init);
         return;
@@ -110,6 +112,7 @@ void FFmpeg::decodeFFmpegThread() {
 
     if (!audioInfo->avCodecContext) {
         LOGE("avcodec_alloc_context3 failed...");
+        callJava->onCallError(CHILD_THREAD, 1003, "avcodec_alloc_context3 failed...");
         exit = true;
         pthread_mutex_unlock(&mutex_init);
         return;
@@ -118,6 +121,7 @@ void FFmpeg::decodeFFmpegThread() {
         0) {
         LOGE("avcodec_parameters_to_context failed...");
         exit = true;
+        callJava->onCallError(CHILD_THREAD, 1004, "avcodec_parameters_to_context failed...");
         pthread_mutex_unlock(&mutex_init);
         return;
     }
@@ -125,6 +129,7 @@ void FFmpeg::decodeFFmpegThread() {
     if (avcodec_open2(audioInfo->avCodecContext, avCodec, 0) != 0) {
         LOGE("avcodec_open2 failed...");
         exit = true;
+        callJava->onCallError(CHILD_THREAD, 1005, "avcodec_open2 failed...");
         pthread_mutex_unlock(&mutex_init);
         return;
     }
@@ -143,6 +148,7 @@ void FFmpeg::decodeFFmpegThread() {
 void FFmpeg::start() {
     if (audioInfo == NULL) {
         LOGE("start failed audio info is null.")
+        callJava->onCallError(CHILD_THREAD, 1006, "start failed audio info is null");
         return;
     }
 

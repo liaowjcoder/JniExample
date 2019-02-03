@@ -24,7 +24,7 @@ public class AudioPlayer {
     private OnPlayLoadListener mOnPlayLoadListener = null;
     private OnPlayTimeInfoListener mOnPlayTimeInfoListener = null;
     private OnPlayResumeAndPauseListener mOnPlayResumeAndPauseListener = null;
-
+    private OnPlayErrorListener mOnPlayErrorListener = null;
     private String source = null;
 
     public AudioPlayer() {
@@ -46,7 +46,6 @@ public class AudioPlayer {
             return;
         }
         //准备阶段--回调加载中
-        onCallOnLoad(true);
         new Thread() {
             @Override
             public void run() {
@@ -113,6 +112,11 @@ public class AudioPlayer {
         this.mOnPlayResumeAndPauseListener = onPlayResumeAndPauseListener;
     }
 
+
+    public void setOnPlayErrorListener(OnPlayErrorListener onPlayErrorListener) {
+        this.mOnPlayErrorListener = onPlayErrorListener;
+    }
+
     public void onCallPrepared() {
         //c++层回调java层，表示 ffmpeg已经准备完毕，可以是播放了
         if (mOnPlayPreparedListener != null) {
@@ -135,6 +139,15 @@ public class AudioPlayer {
         }
     }
 
+    public void onCallError(int errCode, String errMsg) {
+
+        stop();
+
+        if (mOnPlayErrorListener != null) {
+            mOnPlayErrorListener.onError(errCode, errMsg);
+        }
+    }
+
     /**
      * 准备
      *
@@ -149,5 +162,7 @@ public class AudioPlayer {
     private native void _resume();
 
     private native void _stop();
+
+
 }
 

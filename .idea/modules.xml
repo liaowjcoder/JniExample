@@ -7,7 +7,6 @@
       <module fileurl="file://$PROJECT_DIR$/audioplayer/audioplayer.iml" filepath="$PROJECT_DIR$/audioplayer/audioplayer.iml" />
       <module fileurl="file://$PROJECT_DIR$/jni-thread/jni-thread.iml" filepath="$PROJECT_DIR$/jni-thread/jni-thread.iml" />
       <module fileurl="file://$PROJECT_DIR$/library/library.iml" filepath="$PROJECT_DIR$/library/library.iml" />
-      <module fileurl="file://$PROJECT_DIR$/jni-thread/library-thread.iml" filepath="$PROJECT_DIR$/jni-thread/library-thread.iml" />
       <module fileurl="file://$PROJECT_DIR$/open_sl_es_player/open_sl_es_player.iml" filepath="$PROJECT_DIR$/open_sl_es_player/open_sl_es_player.iml" />
     </modules>
   </component>

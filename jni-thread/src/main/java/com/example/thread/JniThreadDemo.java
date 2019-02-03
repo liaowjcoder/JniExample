@@ -1,4 +1,4 @@
-package com.example.lib;
+package com.example.thread;
 
 import android.util.Log;
 

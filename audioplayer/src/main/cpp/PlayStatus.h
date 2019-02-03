@@ -9,9 +9,11 @@
 class PlayStatus {
 public:
     bool isExit = false;
+    bool isLoad = false;
 
 public:
     PlayStatus();
+
     ~PlayStatus();
 };
 

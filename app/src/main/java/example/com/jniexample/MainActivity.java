@@ -12,9 +12,13 @@ import android.widget.TextView;
 import com.example.audioplayer.player.AudioPlayer;
 import com.example.audioplayer.player.OnPlayLoadListener;
 import com.example.audioplayer.player.OnPlayPreparedListener;
+import com.example.audioplayer.player.OnPlayResumeAndPauseListener;
 import com.example.audioplayer.player.OnPlayTimeInfoListener;
 import com.example.audioplayer.player.TimeInfo;
-import com.example.lib.JniThreadDemo;
+import com.example.thread.JniThreadDemo;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import example.com.play.PCMPlayer;
 
@@ -32,10 +36,23 @@ public class MainActivity extends AppCompatActivity {
                 int currentTime = timeInfo.currentTime;
                 int duration = timeInfo.duration;
 
-                mTvTimeInfo.setText(currentTime + ":" + duration);
+                long timestamp = (duration - currentTime) * 1000;
+                mTvTimeInfo.setText(stampToDate(timestamp));
             }
         }
     };
+
+
+    /*
+     * 将时间戳转换为时间
+     */
+    public static String stampToDate(long timeStamp) {
+        String res;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
+        Date date = new Date(timeStamp);
+        res = simpleDateFormat.format(date);
+        return res;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +73,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onLoad(boolean onLoad) {
                 Log.i(TAG, onLoad ? "正在加载中..." : "正在播放");
+            }
+        });
+
+        mAudioPlayer.setOnPlayResumeAndPauseListener(new OnPlayResumeAndPauseListener() {
+            @Override
+            public void onPause() {
+                Log.i(TAG, "onPause");
+            }
+
+            @Override
+            public void onResume() {
+                Log.d(TAG, "onResume");
             }
         });
 
@@ -110,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void audio_prepare(View view) {
-//        mAudioPlayer.setSource("/mnt/sdcard/diy.mp4");
+//        mAudioPlayer.setSource("/storage/emulated/0/houlai.mp3");
         mAudioPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
         mAudioPlayer.prepare();
     }
@@ -130,6 +159,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    public void stop(View view) {
+        mTvTimeInfo.setText(stampToDate(0));
+        mAudioPlayer.stop();
+    }
 }
 
 

@@ -46,6 +46,8 @@ public:
 
     //opensles
     SLEngineItf engineItf;
+    SLObjectItf engineObj;
+    SLObjectItf outputMixObject = NULL;
     SLObjectItf playerObj = NULL;
     SLPlayItf playItf = NULL;
     SLAndroidSimpleBufferQueueItf bufferQueueItf = NULL;
@@ -62,11 +64,13 @@ public:
     double last_time = 0;//上一次的时间
 
 public:
-    AudioInfo(CallJava *callJava,int sampleRate, PlayStatus *playStatus);
+    AudioInfo(CallJava *callJava, int sampleRate, PlayStatus *playStatus);
 
     ~AudioInfo();
 
     void play();
+
+    SLEngineItf createEnginIntf();
 
     int resample();
 
@@ -77,6 +81,10 @@ public:
     void resume();
 
     int getCurrentSampleRateForOpensles(int sample_rate);
+
+    void stop();
+
+    void release();
 };
 
 

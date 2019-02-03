@@ -11,6 +11,7 @@ PacketQueue::PacketQueue(PlayStatus *playStatus) {
 }
 
 PacketQueue::~PacketQueue() {
+    clearAvPacket();
     pthread_mutex_destroy(&mutexAvPacket);
     pthread_cond_destroy(&condAvPacket);
 }
@@ -53,12 +54,39 @@ int PacketQueue::getAvPacket(AVPacket *avPacket) {
 }
 
 int PacketQueue::getAvPacketQueueSize() {
-    int size = 0;
     pthread_mutex_lock(&mutexAvPacket);
+    int size = 0;
     size = queueAvpacket.size();
     pthread_mutex_unlock(&mutexAvPacket);
     return size;
 
+}
+
+
+/**
+ * 释放队列数据
+ */
+void PacketQueue::clearAvPacket() {
+
+    //首先发送信号，通知其他线程释放锁
+    pthread_cond_signal(&condAvPacket);
+
+    //加锁
+    pthread_mutex_lock(&mutexAvPacket);
+
+    while (!queueAvpacket.empty()) {
+
+        AVPacket *avPacket = queueAvpacket.front();
+        //从队列中移除
+        queueAvpacket.pop();
+        //释放
+        av_packet_free(&avPacket);
+        av_free(avPacket);
+        avPacket = NULL;
+    }
+
+    //解锁
+    pthread_mutex_unlock(&mutexAvPacket);
 }
 
 

@@ -44,6 +44,26 @@ void AudioInfo::play() {
 int AudioInfo::resample() {
 
     while (playStatus != NULL && !playStatus->isExit) {
+
+
+        //如果队列没有数据，那么
+        if (packetQueue->getAvPacketQueueSize() == 0) {
+
+            if (!playStatus->isLoad) {
+                playStatus->isLoad = true;
+                //显示当前正在加载中
+                callJava->onCallOnLoad(CHILD_THREAD, true);
+            }
+            continue;
+        } else {
+            if (playStatus->isLoad) {
+                playStatus->isLoad = false;
+                //取消显示当前正在加载中
+                callJava->onCallOnLoad(CHILD_THREAD, false);
+            }
+        }
+
+
         LOGD("resample")
         avPacket = av_packet_alloc();
 
@@ -201,43 +221,11 @@ void callback(SLAndroidSimpleBufferQueueItf caller, void *pContext) {
     } else {
         LOGD("audioInfo is null");
     }
-
-
-//    static FILE *fp;
-//    static char *buffer;
-//
-//
-//    if (!buffer) {
-//        buffer = new char[1024 * 1024];
-//    }
-//
-//    if (!fp) {
-//        fp = fopen("/mnt/sdcard/loveshow_pcm.pcm", "rb");
-////        fp = fopen("/mnt/sdcard/mydream.pcm", "rb");
-//    }
-//
-//    if (!fp) {
-//        LOGD("fopen failed");
-//        return;
-//    }
-//
-//    if ((feof(fp)) == 0) {
-//        int len = fread(buffer, 1, 1024, fp);
-//        LOGD("READ LEN = %d", len)
-//        if (len > 0) {
-//            (*caller)->Enqueue(caller, buffer, len);
-//        } else {
-//            fclose(fp);
-//            fp = NULL;
-//            buffer = NULL;
-//        }
-//    }
-
 }
 
-SLEngineItf createEnginIntf() {
+SLEngineItf AudioInfo::createEnginIntf() {
 
-    SLObjectItf engineObj;
+
     SLresult sLresult = 0;
     sLresult = slCreateEngine(&engineObj, 0, 0, 0, 0, 0);
 
@@ -271,7 +259,6 @@ void AudioInfo::initOpenSLES() {
     }
 
     //2.创建混音器
-    SLObjectItf outputMixObject = NULL;
     SLresult result = (*engineItf)->CreateOutputMix(engineItf, &outputMixObject, 0, 0, 0);
 
     if (SL_RESULT_SUCCESS != result) {
@@ -412,4 +399,65 @@ int AudioInfo::getCurrentSampleRateForOpensles(int sample_rate) {
             rate = SL_SAMPLINGRATE_44_1;
     }
     return rate;
+}
+
+/**
+ * 停止播放
+ */
+void AudioInfo::stop() {
+    //调用这个方法之后，OpenSL ES 的播放回调就会停止
+    if (playItf != NULL) {
+        (*playItf)->SetPlayState(playItf, SL_PLAYSTATE_STOPPED);
+    }
+}
+
+void AudioInfo::release() {
+
+
+    stop();
+
+    //释放队列
+    if (packetQueue != NULL) {
+        delete (packetQueue);
+        packetQueue = NULL;
+    }
+
+
+    //释放 OpenES SL
+    if (playerObj != NULL) {
+        (*playerObj)->Destroy(playerObj);
+        playerObj = NULL;
+        playItf = NULL;
+        bufferQueueItf = NULL;
+    }
+
+    if (outputMixObject != NULL) {
+        (*outputMixObject)->Destroy(outputMixObject);
+        outputMixObject = NULL;
+    }
+
+    if (engineItf != NULL) {
+        (*engineObj)->Destroy(engineObj);
+    }
+
+    if (resampleBuffer != NULL) {
+        free(resampleBuffer);
+        resampleBuffer = NULL;
+    }
+
+    if(avCodecContext!=NULL){
+        avcodec_close(avCodecContext);
+        avcodec_free_context(&avCodecContext);
+        avCodecContext = NULL;
+    }
+
+    //只需要将当前的指针置 NULL 即可，不能 delete 因为其他的类会是用到这个对象
+    if(playStatus!=NULL){
+        playStatus = NULL;
+    }
+
+    if(callJava!=NULL){
+        callJava = NULL;
+    }
+
 }

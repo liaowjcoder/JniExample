@@ -5,10 +5,8 @@ include_directories(src/main/cpp/includes)
 
 add_library( # Sets the name of the library.
              ffmpeg_test_native
-
              SHARED
-
-             src/main/cpp/ffmpeg_test_native.cpp )
+             src/main/cpp/ffmpeg_test_native.cpp)
 
 add_library( avcodec-57 SHARED IMPORTED)
 set_target_properties( avcodec-57
@@ -58,16 +56,12 @@ set_target_properties( swscale-4
 
 target_link_libraries( # Specifies the target library.
                        ffmpeg_test_native
-
                        avcodec-57
                        avdevice-57
-                       avfilter-6
                        avformat-57
+                       avfilter-6
                        avutil-55
                        postproc-54
                        swresample-2
                        swscale-4
-
-                       # Links the target library to the log library
-                       # included in the NDK.
                       log )

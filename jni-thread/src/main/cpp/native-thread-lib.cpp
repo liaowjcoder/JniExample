@@ -22,7 +22,7 @@ void *threadCallback(void *data) {
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_example_lib_JniThreadDemo_createThread(JNIEnv *env, jobject instance) {
+Java_com_example_thread_JniThreadDemo_createThread(JNIEnv *env, jobject instance) {
 
     //创建 thread 对象
     pthread_create(&pthread, NULL, threadCallback, NULL);
@@ -35,7 +35,7 @@ Java_com_example_lib_JniThreadDemo_createThread(JNIEnv *env, jobject instance) {
 //在 c++ 主线程调用 Java 方法。
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_example_lib_JniThreadDemo_callJavaMethodOnCPPMainThread(JNIEnv *env, jobject jobj) {
+Java_com_example_thread_JniThreadDemo_callJavaMethodOnCPPMainThread(JNIEnv *env, jobject jobj) {
 
     jclass jclz = env->GetObjectClass(jobj);
 
@@ -69,7 +69,7 @@ void *childCallback(void *data) {
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_example_lib_JniThreadDemo_callJavaMethodOnCppChildThread(JNIEnv *env, jobject instance) {
+Java_com_example_thread_JniThreadDemo_callJavaMethodOnCppChildThread(JNIEnv *env, jobject instance) {
 
     JavaListener *javaListener = new JavaListener(jvm, env, env->NewGlobalRef(instance));
     pthread_create(&childThread, NULL, childCallback, javaListener);
@@ -160,7 +160,7 @@ void *consumerCallback(void *data) {
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_example_lib_JniThreadDemo_mutex(JNIEnv *env, jobject instance) {
+Java_com_example_thread_JniThreadDemo_mutex(JNIEnv *env, jobject instance) {
 
     if (isProcessing) {
         return;
@@ -190,7 +190,7 @@ Java_com_example_lib_JniThreadDemo_mutex(JNIEnv *env, jobject instance) {
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_example_lib_JniThreadDemo_stopMutex(JNIEnv *env, jobject instance) {
+Java_com_example_thread_JniThreadDemo_stopMutex(JNIEnv *env, jobject instance) {
 
     isProcessing = false;
 

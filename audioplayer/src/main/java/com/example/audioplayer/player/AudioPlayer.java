@@ -23,6 +23,8 @@ public class AudioPlayer {
     private OnPlayPreparedListener mOnPlayPreparedListener = null;
     private OnPlayLoadListener mOnPlayLoadListener = null;
     private OnPlayTimeInfoListener mOnPlayTimeInfoListener = null;
+    private OnPlayResumeAndPauseListener mOnPlayResumeAndPauseListener = null;
+
     private String source = null;
 
     public AudioPlayer() {
@@ -70,17 +72,27 @@ public class AudioPlayer {
 
     public void pause() {
         _pause();
-        if (mOnPlayLoadListener != null) {
-            mOnPlayLoadListener.onLoad(true);
+        if (mOnPlayResumeAndPauseListener != null) {
+            mOnPlayResumeAndPauseListener.onPause();
         }
     }
 
     public void onResume() {
         _resume();
 
-        if (mOnPlayLoadListener != null) {
-            mOnPlayLoadListener.onLoad(false);
+        if (mOnPlayResumeAndPauseListener != null) {
+            mOnPlayResumeAndPauseListener.onResume();
         }
+    }
+
+    public void stop() {
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                _stop();
+            }
+        }.start();
     }
 
     public void setOnPlayPreparedListener(OnPlayPreparedListener onPlayPreparedListener) {
@@ -96,6 +108,10 @@ public class AudioPlayer {
         this.mOnPlayTimeInfoListener = onPlayTimeInfoListener;
     }
 
+
+    public void setOnPlayResumeAndPauseListener(OnPlayResumeAndPauseListener onPlayResumeAndPauseListener) {
+        this.mOnPlayResumeAndPauseListener = onPlayResumeAndPauseListener;
+    }
 
     public void onCallPrepared() {
         //c++层回调java层，表示 ffmpeg已经准备完毕，可以是播放了
@@ -131,5 +147,7 @@ public class AudioPlayer {
     private native void _pause();
 
     private native void _resume();
+
+    private native void _stop();
 }
 

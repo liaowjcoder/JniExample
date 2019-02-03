@@ -18,17 +18,20 @@ public:
     JavaVM *javaVM;
     jobject jobj;
     jmethodID m_prepare_id;
-    jmethodID  m_call_time_info;
+    jmethodID m_call_time_info;
+    jmethodID m_call_onload;
 
 public:
-    CallJava(JNIEnv *jniEnv, JavaVM *javaVM, jobject* jobj);
+    CallJava(JNIEnv *jniEnv, JavaVM *javaVM, jobject *jobj);
 
 
     ~CallJava();
 
     void onCallPrepared(int type);
 
-    void onCallTimeInfo(int type,int currentTime,int duration);
+    void onCallTimeInfo(int type, int currentTime, int duration);
+
+    void onCallOnLoad(int type, jboolean isLoad);
 
 };
 

@@ -60,7 +60,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:onClick="audio_prepare"
-            android:text="准备" />
+            android:text="播放" />
 
         <Button
             android:layout_width="0dp"
@@ -75,6 +75,13 @@
             android:layout_weight="1"
             android:onClick="audio_resume"
             android:text="恢复播放" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="stop"
+            android:text="停止" />
 
     </LinearLayout>
 

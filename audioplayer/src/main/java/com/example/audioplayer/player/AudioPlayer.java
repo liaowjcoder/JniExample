@@ -27,6 +27,7 @@ public class AudioPlayer {
     private OnPlayErrorListener mOnPlayErrorListener = null;
     private OnPlayCompleteListener mOnPlayCompleteListener = null;
     private String source = null;
+    private boolean playNext = false;
 
     public AudioPlayer() {
     }
@@ -91,9 +92,14 @@ public class AudioPlayer {
     }
 
     public void seek(int seconds) {
-
         _seek(seconds);
+    }
 
+
+    public void playNext(String nextUrl) {
+        this.source = nextUrl;//更新当前的 url
+        playNext = true;//标记要播放下一首歌
+        stop();
     }
 
 
@@ -123,6 +129,7 @@ public class AudioPlayer {
     public void setOnPlayCompleteListener(OnPlayCompleteListener onPlayCompleteListener) {
         this.mOnPlayCompleteListener = onPlayCompleteListener;
     }
+
 
     public void onCallPrepared() {
         //c++层回调java层，表示 ffmpeg已经准备完毕，可以是播放了
@@ -164,6 +171,13 @@ public class AudioPlayer {
         }
     }
 
+    public void onCallPlayNext() {
+        if (playNext) {
+            playNext = false;
+            prepare();
+        }
+    }
+
     /**
      * 准备
      *
@@ -180,6 +194,7 @@ public class AudioPlayer {
     private native void _stop();
 
     private native void _seek(int seconds);
+
 
 }
 

@@ -204,8 +204,14 @@ public class MainActivity extends AppCompatActivity {
         mAudioPlayer.stop();
     }
 
-    public void seek(View view) {
-        mAudioPlayer.seek(100);
+
+    /**
+     * 播放下一首
+     * @param view
+     */
+    public void playNext(View view) {
+        String nextUrl = "http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3";
+        mAudioPlayer.playNext(nextUrl);
     }
 }
 

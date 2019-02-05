@@ -75,6 +75,10 @@ Java_com_example_audioplayer_player_AudioPlayer__1stop(JNIEnv *env, jobject inst
 
     nexit = false;
 
+    jclass  jcls = env->GetObjectClass(instance);
+    jmethodID  onCallPlayNextMethodId = env->GetMethodID(jcls,"onCallPlayNext","()V");
+
+
     if (ffmpeg != NULL) {
         ffmpeg->release();
         delete (ffmpeg);
@@ -92,6 +96,8 @@ Java_com_example_audioplayer_player_AudioPlayer__1stop(JNIEnv *env, jobject inst
     }
     LOGD("audio-lib 释放完毕")
     nexit = true;
+
+    env->CallVoidMethod(instance,onCallPlayNextMethodId);
 }
 
 extern "C"

@@ -87,8 +87,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="seek"
-            android:text="seek" />
+            android:onClick="playNext"
+            android:text=" 播放下一首" />
 
     </LinearLayout>
 

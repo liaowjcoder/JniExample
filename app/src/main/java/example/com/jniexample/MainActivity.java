@@ -7,9 +7,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.audioplayer.player.AudioPlayer;
+import com.example.audioplayer.player.OnPlayCompleteListener;
 import com.example.audioplayer.player.OnPlayErrorListener;
 import com.example.audioplayer.player.OnPlayLoadListener;
 import com.example.audioplayer.player.OnPlayPreparedListener;
@@ -28,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private AudioPlayer mAudioPlayer = null;
     private TextView mTvTimeInfo = null;
+    private SeekBar mSeekBar = null;
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
@@ -39,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
 
                 long timestamp = (duration - currentTime) * 1000;
                 mTvTimeInfo.setText(stampToDate(timestamp));
+
+                mSeekBar.setMax(duration);
+                mSeekBar.setProgress(currentTime);
             }
         }
     };
@@ -61,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mTvTimeInfo = findViewById(R.id.tv_time_info);
+        mSeekBar = findViewById(R.id.seekbar_seek);
         mAudioPlayer = new AudioPlayer();
         mAudioPlayer.setOnPlayPreparedListener(new OnPlayPreparedListener() {
             @Override
@@ -106,6 +113,30 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, "errCode = " + errCode + ",errMsg = " + errMsg);
             }
         });
+
+        mAudioPlayer.setOnPlayCompleteListener(new OnPlayCompleteListener() {
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete");
+            }
+        });
+
+        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                mAudioPlayer.seek(seekBar.getProgress());
+            }
+        });
     }
 
     public void hello_ffmpeg(View view) {
@@ -148,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void audio_prepare(View view) {
 //        mAudioPlayer.setSource("/storage/emulated/0/houlai.mp3");
-        mAudioPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/11.mp3");
+        mAudioPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
         mAudioPlayer.prepare();
     }
 
@@ -168,8 +199,13 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void stop(View view) {
+        mSeekBar.setProgress(0);
         mTvTimeInfo.setText(stampToDate(0));
         mAudioPlayer.stop();
+    }
+
+    public void seek(View view) {
+        mAudioPlayer.seek(100);
     }
 }
 

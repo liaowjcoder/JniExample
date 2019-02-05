@@ -10,11 +10,14 @@ class PlayStatus {
 public:
     bool isExit = false;
     bool isLoad = false;
+    bool seek = false;
 
 public:
     PlayStatus();
 
     ~PlayStatus();
+
+
 };
 
 

@@ -20,7 +20,7 @@ int PacketQueue::putAvPacket(AVPacket *avPacket) {
     //usleep(50 * 1000);
     pthread_mutex_lock(&mutexAvPacket);
     queueAvpacket.push(avPacket);
-    LOGD("存放一个AvPacket到队列中，当前队列还有%d个数据", queueAvpacket.size());
+//    LOGD("存放一个AvPacket到队列中，当前队列还有%d个数据", queueAvpacket.size());
 
     //通知消费者去取数据
     pthread_cond_signal(&condAvPacket);
@@ -38,14 +38,14 @@ int PacketQueue::getAvPacket(AVPacket *avPacket) {
             if (av_packet_ref(avPacket, packet) == 0) {
                 //将 packet 从队列中取出来
                 queueAvpacket.pop();
-                LOGD("从队列中取出一个AvPacket，还剩余%d个", queueAvpacket.size());
+//                LOGD("从队列中取出一个AvPacket，还剩余%d个", queueAvpacket.size());
             }
             av_packet_free(&packet);
             av_free(packet);
             packet = NULL;
             break;
         } else {
-            LOGE("等待生产数据...");
+//            LOGE("等待生产数据...");
             pthread_cond_wait(&condAvPacket, &mutexAvPacket);
         }
     }

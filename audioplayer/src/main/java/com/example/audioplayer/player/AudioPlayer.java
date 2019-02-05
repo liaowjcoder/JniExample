@@ -25,6 +25,7 @@ public class AudioPlayer {
     private OnPlayTimeInfoListener mOnPlayTimeInfoListener = null;
     private OnPlayResumeAndPauseListener mOnPlayResumeAndPauseListener = null;
     private OnPlayErrorListener mOnPlayErrorListener = null;
+    private OnPlayCompleteListener mOnPlayCompleteListener = null;
     private String source = null;
 
     public AudioPlayer() {
@@ -61,12 +62,7 @@ public class AudioPlayer {
             Log.d(TAG, "source is empty");
             return;
         }
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                _start();
-            }
-        }).start();
+        _start();
     }
 
     public void pause() {
@@ -94,6 +90,13 @@ public class AudioPlayer {
         }.start();
     }
 
+    public void seek(int seconds) {
+
+        _seek(seconds);
+
+    }
+
+
     public void setOnPlayPreparedListener(OnPlayPreparedListener onPlayPreparedListener) {
         this.mOnPlayPreparedListener = onPlayPreparedListener;
     }
@@ -115,6 +118,10 @@ public class AudioPlayer {
 
     public void setOnPlayErrorListener(OnPlayErrorListener onPlayErrorListener) {
         this.mOnPlayErrorListener = onPlayErrorListener;
+    }
+
+    public void setOnPlayCompleteListener(OnPlayCompleteListener onPlayCompleteListener) {
+        this.mOnPlayCompleteListener = onPlayCompleteListener;
     }
 
     public void onCallPrepared() {
@@ -148,6 +155,15 @@ public class AudioPlayer {
         }
     }
 
+    public void onCallComplete() {
+
+        stop();
+
+        if (mOnPlayCompleteListener != null) {
+            mOnPlayCompleteListener.onComplete();
+        }
+    }
+
     /**
      * 准备
      *
@@ -163,6 +179,7 @@ public class AudioPlayer {
 
     private native void _stop();
 
+    private native void _seek(int seconds);
 
 }
 

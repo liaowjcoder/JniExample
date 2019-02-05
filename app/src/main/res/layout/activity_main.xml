@@ -83,6 +83,13 @@
             android:onClick="stop"
             android:text="停止" />
 
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="seek"
+            android:text="seek" />
+
     </LinearLayout>
 
     <TextView
@@ -90,6 +97,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="00:00" />
+
+
+    <android.support.v7.widget.AppCompatSeekBar
+        android:layout_width="match_parent"
+        android:id="@+id/seekbar_seek"
+        android:layout_height="wrap_content" />
 
     <Button
         android:layout_width="match_parent"

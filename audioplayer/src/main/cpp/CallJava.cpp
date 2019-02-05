@@ -16,7 +16,9 @@ CallJava::CallJava(JNIEnv *jniEnv, JavaVM *javaVM, jobject *jobj) {
     m_call_time_info = jniEnv->GetMethodID(jclz, "onCallTimeInfo", "(II)V");
     m_call_onload = jniEnv->GetMethodID(jclz, "onCallOnLoad", "(Z)V");
     m_call_error = jniEnv->GetMethodID(jclz, "onCallError", "(ILjava/lang/String;)V");
+    m_call_complete = jniEnv->GetMethodID(jclz, "onCallComplete", "()V");
 }
+
 
 void CallJava::onCallPrepared(int type) {
     switch (type) {
@@ -104,6 +106,21 @@ void CallJava::onCallError(int type, int code, char *errMsg) {
 
 }
 
+
+void CallJava::onCallComplete(int type) {
+    if (type == MAIN_THREAD) {
+        jniEnv->CallVoidMethod(jobj, m_call_complete);
+    } else if (type == CHILD_THREAD) {
+        JNIEnv *childJniEnv = NULL;
+
+        if (javaVM->AttachCurrentThread(&childJniEnv, 0) != JNI_OK) {
+            LOGE("attach thread error...")
+            return;
+        }
+        childJniEnv->CallVoidMethod(jobj, m_call_complete);
+        javaVM->DetachCurrentThread();
+    }
+}
 
 CallJava::~CallJava() {
 

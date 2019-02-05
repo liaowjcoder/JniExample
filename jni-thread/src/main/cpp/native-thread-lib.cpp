@@ -197,3 +197,4 @@ Java_com_example_thread_JniThreadDemo_stopMutex(JNIEnv *env, jobject instance) {
     pthread_mutex_destroy(&pthread_mutex);
     pthread_cond_destroy(&pthread_cond);
 }
+

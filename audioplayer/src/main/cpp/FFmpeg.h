@@ -23,7 +23,7 @@ class FFmpeg {
 public:
 
     CallJava *callJava = NULL;
-    pthread_t decodeThread ;
+    pthread_t decodeThread;
     const char *url = NULL;
     AVFormatContext *avFormatContext = NULL;
     AudioInfo *audioInfo = NULL;
@@ -35,6 +35,7 @@ public:
 
 
     pthread_mutex_t mutex_init;
+    pthread_mutex_t mutext_seek;
 
 public:
     FFmpeg(PlayStatus *playStatus, CallJava *callJava, const char *url);
@@ -52,6 +53,8 @@ public:
     void resume();
 
     void release();
+
+    void seek(int seconds);
 };
 
 

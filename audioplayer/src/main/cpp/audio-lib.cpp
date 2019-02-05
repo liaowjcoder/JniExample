@@ -13,6 +13,7 @@ CallJava *callJava = NULL;
 PlayStatus *playStatus = NULL;
 //native 退出
 bool nexit = true;
+pthread_t pthread_start;
 
 extern "C"
 JNIEXPORT void JNICALL
@@ -31,13 +32,18 @@ Java_com_example_audioplayer_player_AudioPlayer__1prepare(JNIEnv *env, jobject i
     }
 }
 
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_example_audioplayer_player_AudioPlayer__1start(JNIEnv *env, jobject instance) {
-
+void *callback_start(void *data) {
+    FFmpeg *ffmpeg = (FFmpeg *) data;
     if (ffmpeg != NULL) {
         ffmpeg->start();
     }
+    pthread_exit(&pthread_start);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_audioplayer_player_AudioPlayer__1start(JNIEnv *env, jobject instance) {
+    pthread_create(&pthread_start, NULL, callback_start, ffmpeg);
 }
 
 extern "C"
@@ -84,8 +90,19 @@ Java_com_example_audioplayer_player_AudioPlayer__1stop(JNIEnv *env, jobject inst
             playStatus = NULL;
         }
     }
-
+    LOGD("audio-lib 释放完毕")
     nexit = true;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_audioplayer_player_AudioPlayer__1seek(JNIEnv *env, jobject instance,
+                                                       jint seconds) {
+
+    if (ffmpeg != NULL) {
+        ffmpeg->seek(seconds);
+    }
+
 }
 
 //在加载动态库时回去调用 JNI_Onload 方法，在这里可以得到 JavaVM 实例对象

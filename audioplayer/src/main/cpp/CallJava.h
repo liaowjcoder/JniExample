@@ -21,6 +21,7 @@ public:
     jmethodID m_call_time_info;
     jmethodID m_call_onload;
     jmethodID m_call_error;
+    jmethodID m_call_complete;
 
 public:
     CallJava(JNIEnv *jniEnv, JavaVM *javaVM, jobject *jobj);
@@ -35,6 +36,8 @@ public:
     void onCallOnLoad(int type, jboolean isLoad);
 
     void onCallError(int type,int errCode,char* errMsg);
+
+    void onCallComplete(int type);
 
 };
 

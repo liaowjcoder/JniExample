@@ -14,7 +14,6 @@ AudioInfo::AudioInfo(CallJava *callJava, int sampleRate, PlayStatus *playStatus)
 }
 
 AudioInfo::~AudioInfo() {
-
 }
 
 void *playCallback(void *data) {
@@ -25,7 +24,6 @@ void *playCallback(void *data) {
 
     //初始化opensles
     audioInfo->initOpenSLES();
-
 
     pthread_exit(&audioInfo->pthreadPlay);
 }
@@ -64,7 +62,7 @@ int AudioInfo::resample() {
         }
 
 
-        LOGD("resample")
+//        LOGD("resample")
         avPacket = av_packet_alloc();
 
         //从队列中获取AvPacket
@@ -100,13 +98,13 @@ int AudioInfo::resample() {
             continue;
         }
 
-        LOGD("channels=%d,channel_layout = %d", avFrame->channels, avFrame->channel_layout);
+//        LOGD("channels=%d,channel_layout = %d", avFrame->channels, avFrame->channel_layout);
         if (avFrame->channels > 0 && avFrame->channel_layout == 0) {
             avFrame->channel_layout = av_get_default_channel_layout(avFrame->channels);
         } else if (avFrame->channels == 0 && avFrame->channel_layout > 0) {
             avFrame->channels = av_get_channel_layout_nb_channels(avFrame->channel_layout);
         }
-        LOGD("channels2=%d,channel_layout2 = %d", avFrame->channels, avFrame->channel_layout);
+//        LOGD("channels2=%d,channel_layout2 = %d", avFrame->channels, avFrame->channel_layout);
         SwrContext *swrContext = swr_alloc();
         swrContext = swr_alloc_set_opts(swrContext,
                                         AV_CH_LAYOUT_STEREO,//(AV_CH_FRONT_LEFT|AV_CH_FRONT_RIGHT)
@@ -156,14 +154,14 @@ int AudioInfo::resample() {
             LOGE("swr_convert ERROR")
             continue;
         }
-        LOGD("当期swr_convert的值为%d", nb);
+//        LOGD("当期swr_convert的值为%d", nb);
         int out_channels = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
         dataSize = nb * out_channels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
-        LOGE("得到重采样的数据大小：%d", dataSize);
+//        LOGE("得到重采样的数据大小：%d", dataSize);
 
         //当前展示时间*时间基=当前的秒数
         current_time = avFrame->pts * av_q2d(time_base);
-        LOGE("current_time:%f", current_time)
+//        LOGE("current_time:%f", current_time)
         if (current_time < clock) {
             current_time = clock;
         }
@@ -194,19 +192,19 @@ int AudioInfo::resample() {
  * @param pContext
  */
 void callback(SLAndroidSimpleBufferQueueItf caller, void *pContext) {
-    LOGD("callback...");
+//    LOGD("callback...");
 
     AudioInfo *audioInfo = (AudioInfo *) pContext;
 
     if (audioInfo != NULL) {
         int dataSize = audioInfo->resample();
 
-        LOGD("callback dataSize:%d", dataSize);
+//        LOGD("callback dataSize:%d", dataSize);
 
         if (dataSize > 0) {
             //计算重采样 dataSize 这么多数据需要多少s，audioInfo->sampleRate*2*2表示1s的数据量
             audioInfo->clock += dataSize / ((double) audioInfo->sampleRate * 2 * 2);
-            LOGD("clock:%f,duration:%d", audioInfo->clock, audioInfo->duration);
+//            LOGD("clock:%f,duration:%d", audioInfo->clock, audioInfo->duration);
             if (audioInfo->clock - audioInfo->last_time > 0.1) {
                 //避免重复调用，只有两个当前 clock 时间与 last_time 相隔1s才需要回调给上层
 

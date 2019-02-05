@@ -6,16 +6,21 @@
 
 #include "FFmpeg.h"
 
+
+
+
 FFmpeg::FFmpeg(PlayStatus *playStatus, CallJava *callJava, const char *url) {
     this->playStatus = playStatus;
     this->callJava = callJava;
     this->url = url;
     exit = false;
     pthread_mutex_init(&mutex_init, NULL);
+    pthread_mutex_init(&mutext_seek, NULL);
 }
 
 FFmpeg::~FFmpeg() {
-
+    pthread_mutex_destroy(&mutex_init);
+    pthread_mutex_destroy(&mutext_seek);
 }
 
 void *callbackDecode(void *data) {
@@ -33,7 +38,7 @@ void FFmpeg::prepare() {
 //会频繁调用，在这里你可以做一个退出操作。
 int interrupt_callback(void *ctx) {
     FFmpeg *fFmpeg = static_cast<FFmpeg *>(ctx);
-    LOGD("interrupt_callback")
+//    LOGD("interrupt_callback")
     if (fFmpeg->playStatus->isExit) {
         return 1;
     }
@@ -45,7 +50,6 @@ int interrupt_callback(void *ctx) {
  * 在子线程中调用
  */
 void FFmpeg::decodeFFmpegThread() {
-    LOGD("decodeFFmpegThread")
     pthread_mutex_lock(&mutex_init);
     //注册
     av_register_all();
@@ -160,9 +164,30 @@ void FFmpeg::start() {
     int count = 0;
     //解码
     while (playStatus != NULL && !playStatus->isExit) {
+
+        if (playStatus->seek) {
+            continue;
+        }
+
+
+        //解封装完毕，将数据放入到队里，如果此时 seek就会把队列情况。这时走 else 逻辑，就会导致 playstatus->exit = true; 直接退出。
+        //保证队列的数据不大于40个。减少内存的压力。
+        if (audioInfo->packetQueue->getAvPacketQueueSize() > 40) {
+            continue;
+        }
+
+
         AVPacket *avPacket = av_packet_alloc();
 
-        if (av_read_frame(avFormatContext, avPacket) == 0) {
+
+
+
+        //确保操作 avFormatContext 只有一个线程，避免 seek 操作。
+        pthread_mutex_lock(&mutext_seek);
+        int ret = av_read_frame(avFormatContext, avPacket);
+        pthread_mutex_unlock(&mutext_seek);
+
+        if (ret == 0) {
 
             if (avPacket->stream_index == audioInfo->streamIndex) {
                 count++;
@@ -177,17 +202,33 @@ void FFmpeg::start() {
                 avPacket = NULL;
             }
         } else {
-            LOGD("解码完成，总共解码%d帧", count);
+            LOGD("解封装完成，总共解码%d帧", count);
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = NULL;
+
+            while (playStatus != NULL && !playStatus->isExit) {
+                if (audioInfo->packetQueue->getAvPacketQueueSize() > 0) {
+                    //解封装完毕，队列还有数据，还需要等待队列数据播放完毕
+                    continue;
+                } else {
+                    //真正的结束了
+                    playStatus->isExit = true;
+                }
+            }
             break;
         }
     }
 
+    //代码走到这里表示 playStatus->isExit = true 要退出了。
+    if (callJava != NULL) {
+        LOGD("onCallComplete");
+        callJava->onCallComplete(CHILD_THREAD);
+    }
+
     //解封装完毕
     exit = true;
-    LOGD("解封装完毕:%d", count);
+//    LOGD("解封装完毕:%d", count);
 
 
     //测试代码
@@ -219,14 +260,13 @@ void FFmpeg::release() {
 
     LOGD("开始释放 ffmpeg")
 
-    pthread_mutex_lock(&mutex_init);
 
-    if (playStatus->isExit) {
-        return;
-    }
+
+
     playStatus->isExit = true;
 
     int sleepCount = 0;
+    pthread_mutex_lock(&mutex_init);
     while (!exit) {
 
         if (sleepCount > 1000) {
@@ -238,7 +278,7 @@ void FFmpeg::release() {
         sleepCount++;
         av_usleep(1000 * 10);//睡眠10ms
     }
-
+    pthread_mutex_unlock(&mutex_init);
     LOGD("开始释放 audioInfo")
     //释放 AudioInfo
     if (audioInfo != NULL) {
@@ -263,8 +303,35 @@ void FFmpeg::release() {
     if (callJava != NULL) {
         callJava = NULL;
     }
-    pthread_mutex_unlock(&mutex_init);
 
 
+}
+
+void FFmpeg::seek(int seconds) {
+    if (seconds <= 0) {
+        return;
+    }
+    LOGD("seek1")
+    if (audioInfo != NULL) {
+        if (audioInfo->duration > 0 && seconds <= audioInfo->duration) {
+            LOGD("seek2")
+            playStatus->seek = true;
+            audioInfo->packetQueue->clearAvPacket();
+            audioInfo->clock = 0;
+            audioInfo->last_time = 0;
+
+            //这里在 seek 的时候，其他线程可能正在操作 read_av_frame()，因此avFormatContext操作需要加锁。
+            pthread_mutex_lock(&mutext_seek);
+            LOGD("seek3")
+            avformat_seek_file(avFormatContext, -1, INT64_MIN, seconds * AV_TIME_BASE, INT64_MAX,
+                               0);
+            LOGD("seek4")
+            pthread_mutex_unlock(&mutext_seek);
+
+            playStatus->seek = false;
+
+        }
+
+    }
 }
 

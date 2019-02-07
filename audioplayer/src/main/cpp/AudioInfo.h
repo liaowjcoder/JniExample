@@ -51,6 +51,8 @@ public:
     SLObjectItf playerObj = NULL;
     SLPlayItf playItf = NULL;
     SLAndroidSimpleBufferQueueItf bufferQueueItf = NULL;
+    SLVolumeItf pcmPlayerVolume = NULL;
+
 
     CallJava *callJava = NULL;
 
@@ -62,6 +64,8 @@ public:
     double clock = 0;
     double current_time = 0;//当前时间
     double last_time = 0;//上一次的时间
+
+    int volumePercent = 100;
 
 public:
     AudioInfo(CallJava *callJava, int sampleRate, PlayStatus *playStatus);
@@ -85,6 +89,12 @@ public:
     void stop();
 
     void release();
+
+
+    /**
+     * 设置音量
+     */
+    void setVolume(int percent);
 };
 
 

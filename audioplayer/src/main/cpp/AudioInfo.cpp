@@ -294,9 +294,9 @@ void AudioInfo::initOpenSLES() {
     };
 
     //创建播放器
-    const SLInterfaceID ids[1] = {SL_IID_BUFFERQUEUE};
-    const SLboolean req[1] = {SL_BOOLEAN_TRUE};
-    result = (*engineItf)->CreateAudioPlayer(engineItf, &playerObj, &ds, &audioSink, 1, ids, req);
+    const SLInterfaceID ids[2] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME};
+    const SLboolean req[2] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
+    result = (*engineItf)->CreateAudioPlayer(engineItf, &playerObj, &ds, &audioSink, 2, ids, req);
 
     if (SL_RESULT_SUCCESS != result) {
         LOGE("CreateAudioPlayer failed...")
@@ -321,10 +321,19 @@ void AudioInfo::initOpenSLES() {
         LOGE("SL_IID_BUFFERQUEUE GetInterface failed...")
         return;
     }
+
     //设置回调函数
     (*bufferQueueItf)->RegisterCallback(bufferQueueItf, callback, this);
     //设置为播放状态
     (*playItf)->SetPlayState(playItf, SL_PLAYSTATE_PLAYING);
+
+
+    (*playerObj)->GetInterface(playerObj, SL_IID_VOLUME, &pcmPlayerVolume);
+
+    //设置 OpenSL ES音量
+    setVolume(volumePercent);
+
+
 
     //启动队列
     //(*bufferQueueItf)->Enqueue(bufferQueueItf, "", 1);
@@ -443,19 +452,63 @@ void AudioInfo::release() {
         resampleBuffer = NULL;
     }
 
-    if(avCodecContext!=NULL){
+    if (avCodecContext != NULL) {
         avcodec_close(avCodecContext);
         avcodec_free_context(&avCodecContext);
         avCodecContext = NULL;
     }
 
     //只需要将当前的指针置 NULL 即可，不能 delete 因为其他的类会是用到这个对象
-    if(playStatus!=NULL){
+    if (playStatus != NULL) {
         playStatus = NULL;
     }
 
-    if(callJava!=NULL){
+    if (callJava != NULL) {
         callJava = NULL;
     }
 
+}
+
+/**
+ * 设置音量
+ */
+void AudioInfo::setVolume(int percent) {
+    volumePercent = percent;
+    if (pcmPlayerVolume != NULL) {
+        if(percent > 30)
+        {
+            (*pcmPlayerVolume)->SetVolumeLevel(pcmPlayerVolume, (100 - percent) * -20);
+        }
+        else if(percent > 25)
+        {
+            (*pcmPlayerVolume)->SetVolumeLevel(pcmPlayerVolume, (100 - percent) * -22);
+        }
+        else if(percent > 20)
+        {
+            (*pcmPlayerVolume)->SetVolumeLevel(pcmPlayerVolume, (100 - percent) * -25);
+        }
+        else if(percent > 15)
+        {
+            (*pcmPlayerVolume)->SetVolumeLevel(pcmPlayerVolume, (100 - percent) * -28);
+        }
+        else if(percent > 10)
+        {
+            (*pcmPlayerVolume)->SetVolumeLevel(pcmPlayerVolume, (100 - percent) * -30);
+        }
+        else if(percent > 5)
+        {
+            (*pcmPlayerVolume)->SetVolumeLevel(pcmPlayerVolume, (100 - percent) * -34);
+        }
+        else if(percent > 3)
+        {
+            (*pcmPlayerVolume)->SetVolumeLevel(pcmPlayerVolume, (100 - percent) * -37);
+        }
+        else if(percent > 0)
+        {
+            (*pcmPlayerVolume)->SetVolumeLevel(pcmPlayerVolume, (100 - percent) * -40);
+        }
+        else{
+            (*pcmPlayerVolume)->SetVolumeLevel(pcmPlayerVolume, (100 - percent) * -100);
+        }
+    }
 }

@@ -28,6 +28,7 @@ public class AudioPlayer {
     private OnPlayCompleteListener mOnPlayCompleteListener = null;
     private String source = null;
     private boolean playNext = false;
+    private int volumePercent = 100;
 
     public AudioPlayer() {
     }
@@ -63,6 +64,7 @@ public class AudioPlayer {
             Log.d(TAG, "source is empty");
             return;
         }
+        setVolumePercent(volumePercent);
         _start();
     }
 
@@ -101,6 +103,7 @@ public class AudioPlayer {
         playNext = true;//标记要播放下一首歌
         stop();
     }
+
 
 
     public void setOnPlayPreparedListener(OnPlayPreparedListener onPlayPreparedListener) {
@@ -178,6 +181,17 @@ public class AudioPlayer {
         }
     }
 
+    public void setVolumePercent(int volumePercent) {
+        if (volumePercent >= 0 && volumePercent <= 100) {
+            this.volumePercent = volumePercent;
+            _setVolume(volumePercent);
+        }
+    }
+
+    public int getVolumePercent() {
+        return volumePercent;
+    }
+
     /**
      * 准备
      *
@@ -194,6 +208,8 @@ public class AudioPlayer {
     private native void _stop();
 
     private native void _seek(int seconds);
+
+    private native void _setVolume(int percent);
 
 
 }

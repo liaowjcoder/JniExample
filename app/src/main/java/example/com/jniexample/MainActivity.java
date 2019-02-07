@@ -18,19 +18,19 @@ import com.example.audioplayer.player.OnPlayPreparedListener;
 import com.example.audioplayer.player.OnPlayResumeAndPauseListener;
 import com.example.audioplayer.player.OnPlayTimeInfoListener;
 import com.example.audioplayer.player.TimeInfo;
-import com.example.thread.JniThreadDemo;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import example.com.play.PCMPlayer;
 
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private AudioPlayer mAudioPlayer = null;
     private TextView mTvTimeInfo = null;
-    private SeekBar mSeekBar = null;
+    private SeekBar mSeekBarSeek = null;
+    private SeekBar mSeekBarVolume;
+    private TextView mTvVolume = null;
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
@@ -43,8 +43,8 @@ public class MainActivity extends AppCompatActivity {
                 long timestamp = (duration - currentTime) * 1000;
                 mTvTimeInfo.setText(stampToDate(timestamp));
 
-                mSeekBar.setMax(duration);
-                mSeekBar.setProgress(currentTime);
+                mSeekBarSeek.setMax(duration);
+                mSeekBarSeek.setProgress(currentTime);
             }
         }
     };
@@ -67,8 +67,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mTvTimeInfo = findViewById(R.id.tv_time_info);
-        mSeekBar = findViewById(R.id.seekbar_seek);
+        mSeekBarSeek = findViewById(R.id.seekbar_seek);
+        mSeekBarVolume = findViewById(R.id.seekbar_volume);
+        mTvVolume = findViewById(R.id.tv_volume);
         mAudioPlayer = new AudioPlayer();
+        mAudioPlayer.setVolumePercent(50);
+        mTvVolume.setText("音量：" + mAudioPlayer.getVolumePercent() + "%");
+        mSeekBarVolume.setProgress(mAudioPlayer.getVolumePercent());
         mAudioPlayer.setOnPlayPreparedListener(new OnPlayPreparedListener() {
             @Override
             public void onPrepared() {
@@ -121,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        mSeekBarSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
@@ -137,6 +142,25 @@ public class MainActivity extends AppCompatActivity {
                 mAudioPlayer.seek(seekBar.getProgress());
             }
         });
+
+        mSeekBarVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                Log.d(TAG, "音量:" + progress);
+                mAudioPlayer.setVolumePercent(progress);
+                mTvVolume.setText("音量：" + mAudioPlayer.getVolumePercent() + "%");
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
     }
 
     public void hello_ffmpeg(View view) {
@@ -144,38 +168,38 @@ public class MainActivity extends AppCompatActivity {
 //        jniDemo.test();
     }
 
-    public void hello_jni_thread(View view) {
-        JniThreadDemo jniThreadDemo = new JniThreadDemo();
+//    public void hello_jni_thread(View view) {
+//        JniThreadDemo jniThreadDemo = new JniThreadDemo();
+//
+//        jniThreadDemo.createThread();
+//    }
+//
+//    public void callJavaMethodOnCppMainThread(View view) {
+//        JniThreadDemo jniThreadDemo = new JniThreadDemo();
+//
+//        jniThreadDemo.callJavaMethodOnCPPMainThread();
+//    }
+//
+//    public void callJavaMethodOnCppChildThread(View view) {
+//        JniThreadDemo jniThreadDemo = new JniThreadDemo();
+//
+//        jniThreadDemo.callJavaMethodOnCppChildThread();
+//    }
 
-        jniThreadDemo.createThread();
-    }
-
-    public void callJavaMethodOnCppMainThread(View view) {
-        JniThreadDemo jniThreadDemo = new JniThreadDemo();
-
-        jniThreadDemo.callJavaMethodOnCPPMainThread();
-    }
-
-    public void callJavaMethodOnCppChildThread(View view) {
-        JniThreadDemo jniThreadDemo = new JniThreadDemo();
-
-        jniThreadDemo.callJavaMethodOnCppChildThread();
-    }
-
-    //生产者与消费者
-    public void mutex(View view) {
-        JniThreadDemo jniThreadDemo = new JniThreadDemo();
-
-        jniThreadDemo.mutex();
-    }
-
-
-    //生产者与消费者
-    public void stopMutex(View view) {
-        JniThreadDemo jniThreadDemo = new JniThreadDemo();
-
-        jniThreadDemo.stopMutex();
-    }
+//    //生产者与消费者
+//    public void mutex(View view) {
+//        JniThreadDemo jniThreadDemo = new JniThreadDemo();
+//
+//        jniThreadDemo.mutex();
+//    }
+//
+//
+//    //生产者与消费者
+//    public void stopMutex(View view) {
+//        JniThreadDemo jniThreadDemo = new JniThreadDemo();
+//
+//        jniThreadDemo.stopMutex();
+//    }
 
     public void audio_prepare(View view) {
 //        mAudioPlayer.setSource("/storage/emulated/0/houlai.mp3");
@@ -183,10 +207,10 @@ public class MainActivity extends AppCompatActivity {
         mAudioPlayer.prepare();
     }
 
-    public void OpenSLES_PCM_PLAYER(View view) {
-        PCMPlayer player = new PCMPlayer();
-        player.play();
-    }
+//    public void OpenSLES_PCM_PLAYER(View view) {
+//        PCMPlayer player = new PCMPlayer();
+//        player.play();
+//    }
 
     public void audio_pause(View view) {
         //暂停，是暂停播放线程，解码线程并不会暂停
@@ -199,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void stop(View view) {
-        mSeekBar.setProgress(0);
+        mSeekBarSeek.setProgress(0);
         mTvTimeInfo.setText(stampToDate(0));
         mAudioPlayer.stop();
     }
@@ -207,6 +231,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * 播放下一首
+     *
      * @param view
      */
     public void playNext(View view) {

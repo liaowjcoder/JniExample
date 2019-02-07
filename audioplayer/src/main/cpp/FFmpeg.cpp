@@ -7,8 +7,6 @@
 #include "FFmpeg.h"
 
 
-
-
 FFmpeg::FFmpeg(PlayStatus *playStatus, CallJava *callJava, const char *url) {
     this->playStatus = playStatus;
     this->callJava = callJava;
@@ -261,8 +259,6 @@ void FFmpeg::release() {
     LOGD("开始释放 ffmpeg")
 
 
-
-
     playStatus->isExit = true;
 
     int sleepCount = 0;
@@ -333,5 +329,12 @@ void FFmpeg::seek(int seconds) {
         }
 
     }
+}
+
+void FFmpeg::setVolume(int percent) {
+    if (audioInfo != NULL) {
+        audioInfo->setVolume(percent);
+    }
+
 }
 

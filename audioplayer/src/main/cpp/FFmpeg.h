@@ -55,6 +55,8 @@ public:
     void release();
 
     void seek(int seconds);
+
+    void setVolume(int percent);
 };
 
 

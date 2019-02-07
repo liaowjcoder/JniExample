@@ -75,8 +75,8 @@ Java_com_example_audioplayer_player_AudioPlayer__1stop(JNIEnv *env, jobject inst
 
     nexit = false;
 
-    jclass  jcls = env->GetObjectClass(instance);
-    jmethodID  onCallPlayNextMethodId = env->GetMethodID(jcls,"onCallPlayNext","()V");
+    jclass jcls = env->GetObjectClass(instance);
+    jmethodID onCallPlayNextMethodId = env->GetMethodID(jcls, "onCallPlayNext", "()V");
 
 
     if (ffmpeg != NULL) {
@@ -97,7 +97,7 @@ Java_com_example_audioplayer_player_AudioPlayer__1stop(JNIEnv *env, jobject inst
     LOGD("audio-lib 释放完毕")
     nexit = true;
 
-    env->CallVoidMethod(instance,onCallPlayNextMethodId);
+    env->CallVoidMethod(instance, onCallPlayNextMethodId);
 }
 
 extern "C"
@@ -111,6 +111,17 @@ Java_com_example_audioplayer_player_AudioPlayer__1seek(JNIEnv *env, jobject inst
 
 }
 
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_audioplayer_player_AudioPlayer__1setVolume(JNIEnv *env, jobject instance,
+                                                            jint percent) {
+
+    if (ffmpeg != NULL) {
+        ffmpeg->setVolume(percent);
+    }
+}
+
+
 //在加载动态库时回去调用 JNI_Onload 方法，在这里可以得到 JavaVM 实例对象
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env;
@@ -120,3 +131,5 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     }
     return JNI_VERSION_1_6;
 }
+
+
